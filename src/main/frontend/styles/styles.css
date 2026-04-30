@@ -1,0 +1,96 @@
+/* ===== PALETTE ===== */
+/* Azzurro/blu chiaro istituzionale come colore primario */
+:root {
+    --library-primary: #2a6496;
+    --library-primary-light: #d6e8f5;
+    --library-primary-hover: #1e4f78;
+    --library-surface: #f4f8fc;
+    --library-border: #c8dff0;
+    --library-text: #1a2e40;
+}
+
+/* ===== NAVBAR ===== */
+vaadin-app-layout::part(navbar) {
+    background-color: var(--library-primary);
+    border-bottom: 2px solid var(--library-primary-hover);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+vaadin-app-layout::part(navbar) h1 {
+    color: #ffffff;
+}
+
+vaadin-drawer-toggle {
+    color: #ffffff !important;
+}
+
+/* ===== DRAWER ===== */
+vaadin-app-layout::part(drawer) {
+    background-color: var(--library-surface);
+    border-right: 1px solid var(--library-border);
+}
+
+vaadin-side-nav-item::part(item) {
+    color: var(--library-text);
+    border-radius: 6px;
+    margin: 2px 4px;
+}
+
+vaadin-side-nav-item[active]::part(item) {
+    background-color: var(--library-primary-light);
+    color: var(--library-primary);
+    font-weight: 600;
+}
+
+vaadin-side-nav-item::part(item):hover {
+    background-color: var(--library-primary-light);
+}
+
+/* ===== GRIGLIA ===== */
+vaadin-grid {
+    border: 1px solid var(--library-border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(42, 100, 150, 0.08);
+}
+
+vaadin-grid::part(header-cell) {
+    background-color: var(--library-primary);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.03em;
+}
+
+vaadin-grid::part(row):hover {
+    background-color: var(--library-primary-light);
+}
+
+vaadin-grid::part(row):nth-child(even) {
+    background-color: #eef5fb;
+}
+
+/* ===== BADGE CATEGORIE ===== */
+[theme~="badge"] {
+    background-color: var(--library-primary-light) !important;
+    color: var(--library-primary) !important;
+    border: 1px solid var(--library-border) !important;
+    border-radius: 12px !important;
+}
+
+/* ===== BOTTONI ===== */
+vaadin-button[theme~="primary"] {
+    background-color: var(--library-primary);
+}
+
+vaadin-button[theme~="primary"]:hover {
+    background-color: var(--library-primary-hover);
+}
+
+/* ===== PAGINE ===== */
+/* Sfondo leggero su tutte le view */
+.view-container {
+    background-color: var(--library-surface);
+    padding: 24px;
+    border-radius: 8px;
+}

@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/biblioteca?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: biblioteca
+        dialect: org.hibernate.dialect.MySQLDialect
+
+logging:
+  level:
+    org.springframework.security: INFO
+
+security:
+  user:
+    super_admin:
+      username: superadmin
+      password: ${SUPER_ADMIN_PWD}
+      email: superadmin@biblioteca.local
+    admin:
+      username: admin
+      password: ${ADMIN_PWD}
+      email: admin@biblioteca.local
+    simple_user:
+      username: user
+      password: ${SIMPLE_USER_PWD}
+      email: user@biblioteca.local
