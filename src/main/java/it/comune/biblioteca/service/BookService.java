@@ -41,9 +41,9 @@ public class BookService {
 	return bookRepository.findAll();
     }
 
-    public void save(Book book) {
+    public void save(Book book, boolean isFromFile) {
 	try {
-	    validateBook(book);
+	    validateBook(book, isFromFile);
 	    book.setSerialCode(normalizeSerialCode(book.getSerialCode()));
 	    book.setName(normalize(book.getName()));
 	    book.setAuthor(normalize(book.getAuthor()));
@@ -103,7 +103,7 @@ public class BookService {
 		.orElseThrow(() -> new PersistenceException(ExceptionCodeEnum.G_001, "Book not found"));
     }
 
-    private void validateBook(Book book) {
+    private void validateBook(Book book, boolean isFromFile) {
 	if(StringUtils.isBlank(book.getName())) {
 	    throw new PersistenceException(ExceptionCodeEnum.B_005);
 	}
@@ -113,7 +113,7 @@ public class BookService {
 	if(book.getId() == null && bookRepository.existsBySerialCodeIgnoreCase(book.getSerialCode())) {
 	    throw new PersistenceException(ExceptionCodeEnum.B_001);
 	}
-	if(book.getId() == null && bookRepository.existsByIsbnIgnoreCase(book.getIsbn())) {
+	if(!isFromFile && book.getId() == null && bookRepository.existsByIsbnIgnoreCase(book.getIsbn())) {
 	    throw new PersistenceException(ExceptionCodeEnum.B_002);
 	}
 	if(!book.getSerialCode().matches("^[a-zA-Z]+[0-9]+$")) {

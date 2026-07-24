@@ -7,8 +7,7 @@ import java.util.Set;
 @Entity
 @Table(name = "books",
 	uniqueConstraints = {
-		@UniqueConstraint(name = "uk_books_serial", columnNames = "serial_code"),
-		@UniqueConstraint(name = "uk_books_isbn", columnNames = "isbn")
+		@UniqueConstraint(name = "uk_books_serial", columnNames = "serial_code")
 	})
 public class Book {
 

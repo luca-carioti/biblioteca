@@ -144,7 +144,7 @@ public class BookDetailView extends Dialog {
     private void save() {
 	Book book = this.book != null ? this.book : new Book();
 	if (binder.writeBeanIfValid(book)) {
-	    bookService.save(book);
+	    bookService.save(book, false);
 	    Notification success = Notification.show(getTranslation("book-detail.notification.saved"));
 	    success.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 	    onSave.run();

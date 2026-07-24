@@ -158,7 +158,7 @@ public class BookFileService {
 	book.setCategories(new HashSet<>());
 	book.getCategories().add(category);
 
-	bookService.save(book);
+	bookService.save(book, true);
 	report.bookInserted();
 	log.debug("Book inserted: '{}' [{}]", title, normalizedSerial);
     }
