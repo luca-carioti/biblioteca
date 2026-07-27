@@ -21,9 +21,11 @@ import it.comune.biblioteca.service.CategoryService;
 import it.comune.biblioteca.ui.common.MainLayout;
 import it.comune.biblioteca.util.SecurityUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import static com.vaadin.flow.component.Key.ENTER;
 import static it.comune.biblioteca.enums.AppRoleEnum.ROLE_ADMIN;
@@ -41,12 +43,24 @@ public class BookView extends VerticalLayout {
     private final TextField search = new TextField(getTranslation("book-view.search"));
     private final ComboBox<Category> categoryFilter = new ComboBox<>(getTranslation("book-view.category"));
 
+    private int currentPage = 0;
+    private int totalPages = 0;
+
+    private final ComboBox<Integer> itemsPerPageSelect = new ComboBox<>();
+    private final Button firstButton = new Button();
+    private final Button prevButton = new Button();
+    private final Button nextButton = new Button();
+    private final Button lastButton = new Button();
+    private final Span pageLabel = new Span();
+    private final HorizontalLayout paginationRow = new HorizontalLayout();
+
     public BookView(BookService bookService, CategoryService categoryService) {
 	this.bookService = bookService;
 	this.categoryService = categoryService;
 
 	configureGrid();
 	configureFilters();
+	configurePagination();
 
 	Button add = new Button(getTranslation("book-view.add-button"), e -> openBookDetailDialog(null, false));
 
@@ -59,7 +73,7 @@ public class BookView extends VerticalLayout {
 	HorizontalLayout toolbar = new HorizontalLayout(search, categoryFilter, searchButton, add);
 	toolbar.setAlignItems(Alignment.END);
 
-	add(toolbar, grid);
+	add(toolbar, paginationRow, grid);
 	setSizeFull();
 
 	refresh();
@@ -121,14 +135,94 @@ public class BookView extends VerticalLayout {
     }
 
     private void refresh() {
-	List<Book> all = bookService.findAll();
+	currentPage = 0;
 	search.clear();
 	categoryFilter.clear();
-	grid.setItems(all);
+	updateGrid();
     }
 
     private void advancedSearch() {
-	grid.setItems(bookService.advancedSearch(search.getValue(), new HashSet<>(categoryFilter.getValue() != null ? List.of(categoryFilter.getValue()) : new ArrayList<>())));
+	currentPage = 0;
+	updateGrid();
+    }
+
+    private void configurePagination() {
+	itemsPerPageSelect.setLabel(getTranslation("book-view.pagination.items-per-page"));
+	itemsPerPageSelect.setItems(5, 10, 20, 50);
+	itemsPerPageSelect.setValue(10);
+	itemsPerPageSelect.setAllowCustomValue(false);
+	itemsPerPageSelect.setWidth("150px");
+	itemsPerPageSelect.addValueChangeListener(e -> {
+	    currentPage = 0;
+	    updateGrid();
+	});
+
+	firstButton.setIcon(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
+	firstButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+	firstButton.addClickListener(e -> {
+	    currentPage = 0;
+	    updateGrid();
+	});
+
+	prevButton.setIcon(new Icon(VaadinIcon.ANGLE_LEFT));
+	prevButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+	prevButton.addClickListener(e -> {
+	    if (currentPage > 0) {
+		currentPage--;
+		updateGrid();
+	    }
+	});
+
+	nextButton.setIcon(new Icon(VaadinIcon.ANGLE_RIGHT));
+	nextButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+	nextButton.addClickListener(e -> {
+	    if (currentPage < totalPages - 1) {
+		currentPage++;
+		updateGrid();
+	    }
+	});
+
+	lastButton.setIcon(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
+	lastButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+	lastButton.addClickListener(e -> {
+	    currentPage = totalPages - 1;
+	    updateGrid();
+	});
+
+	HorizontalLayout navigationLayout = new HorizontalLayout(firstButton, prevButton, pageLabel, nextButton, lastButton);
+	navigationLayout.setAlignItems(Alignment.CENTER);
+
+	paginationRow.add(itemsPerPageSelect, navigationLayout);
+	paginationRow.setWidthFull();
+	paginationRow.setJustifyContentMode(JustifyContentMode.BETWEEN);
+	paginationRow.setAlignItems(Alignment.CENTER);
+    }
+
+    private void updateGrid() {
+	String query = search.getValue();
+	Category category = categoryFilter.getValue();
+	int pageSize = itemsPerPageSelect.getValue() != null ? itemsPerPageSelect.getValue() : 10;
+
+	Page<Book> bookPage = bookService.advancedSearch(
+		query,
+		category != null ? Set.of(category) : new HashSet<>(),
+		PageRequest.of(currentPage, pageSize)
+	);
+
+	grid.setItems(bookPage.getContent());
+	totalPages = bookPage.getTotalPages();
+
+	updatePaginationUI();
+    }
+
+    private void updatePaginationUI() {
+	firstButton.setEnabled(currentPage > 0);
+	prevButton.setEnabled(currentPage > 0);
+	nextButton.setEnabled(currentPage < totalPages - 1);
+	lastButton.setEnabled(currentPage < totalPages - 1);
+
+	int displayPage = totalPages == 0 ? 0 : currentPage + 1;
+	pageLabel.setText(getTranslation("book-view.pagination.page-info", displayPage, totalPages));
     }
 
     private void openBookDetailDialog(Book book, boolean readOnly) {

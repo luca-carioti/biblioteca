@@ -5,6 +5,8 @@ import it.comune.biblioteca.entity.Category;
 import it.comune.biblioteca.enums.ExceptionCodeEnum;
 import it.comune.biblioteca.exception.PersistenceException;
 import it.comune.biblioteca.repository.BookRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
@@ -82,7 +84,7 @@ public class BookService {
 	}
     }
 
-    public List<Book> advancedSearch(String query, Set<Category> categories) {
+    public Page<Book> advancedSearch(String query, Set<Category> categories, Pageable pageable) {
 	try {
 	    String cleanQuery = (query == null || query.trim().isEmpty()) ? null : query.trim().replaceAll("\\s+", " ");
 	    List<Long> categoryIds = null;
@@ -92,7 +94,7 @@ public class BookService {
 			.toList();
 	    }
 
-	    return bookRepository.advancedSearch(cleanQuery, categoryIds);
+	    return bookRepository.advancedSearch(cleanQuery, categoryIds, pageable);
 	} catch (Exception e) {
 	    throw new PersistenceException(ExceptionCodeEnum.G_001, e.getMessage(), e);
 	}
